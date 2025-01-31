@@ -18,5 +18,4 @@ $ docker-compose stop
 # URL
 ```
 nginx       >> localhost:8080
-phpmyadmin  >> localhost:8888
 ```
