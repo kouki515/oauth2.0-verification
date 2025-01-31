@@ -1,6 +1,5 @@
 <?php
-define('GITHUB_CLIENT_ID', 'Ov23liINeWpHEcMJTSxi');
-define('GITHUB_CLIENT_SECRET', '8bd9be7453d5606505315f6ac8ab296fb9cac89e');
+require_once __DIR__ . '/../config.php';
 
 class MockOAuthServer
 {

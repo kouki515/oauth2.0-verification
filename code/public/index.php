@@ -1,13 +1,14 @@
 <?php
 session_start();
-require_once 'config.php';
+require_once __DIR__ . '/../config.php';
+
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
     <meta charset="UTF-8">
-    <title>GitHub OAuth ログイン</title>
+    <title>OAuth2.0とは</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,19 +28,31 @@ require_once 'config.php';
             text-align: center;
         }
 
-        .github-button {
+        .oauth-button {
             display: inline-block;
-            background-color: #24292e;
             color: white;
             padding: 12px 24px;
             border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
-            margin-top: 20px;
+            margin: 10px;
+            width: 200px;
+        }
+
+        .github-button {
+            background-color: #24292e;
         }
 
         .github-button:hover {
             background-color: #2f363d;
+        }
+
+        .google-button {
+            background-color: #4285f4;
+        }
+
+        .google-button:hover {
+            background-color: #357abd;
         }
     </style>
 </head>
@@ -47,13 +60,30 @@ require_once 'config.php';
 <body>
     <div class="login-container">
         <h1>ログイン</h1>
-        <p>GitHubアカウントでログインしてください</p>
+        <p>ソーシャルアカウントでログインしてください</p>
         <?php
-        $auth_url = 'https://github.com/login/oauth/authorize?'
+        $github_auth_url = 'https://github.com/login/oauth/authorize?'
+            . 'client_id=' . GITHUB_CLIENT_ID
+            . '&redirect_uri=' . urlencode(GITHUB_REDIRECT_URI)
+            . '&scope=user';
+
+        $google_auth_url = 'https://accounts.google.com/o/oauth2/v2/auth?'
+            . 'client_id=' . GOOGLE_CLIENT_ID
+            . '&redirect_uri=' . urlencode(GOOGLE_REDIRECT_URI)
+            . '&response_type=code'
+            . '&scope=' . urlencode('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')
+            . '&access_type=online';
         ?>
-        <a href="<?= htmlspecialchars($auth_url); ?>client_id=<?= GITHUB_CLIENT_ID; ?>&redirect_uri=<?= urlencode(REDIRECT_URI); ?>&scope=user" class="github-button">
-        GitHubでログイン
-        </a>
+        <div>
+            <a href="<?= htmlspecialchars($github_auth_url); ?>" class="oauth-button github-button">
+                GitHubでログイン
+            </a>
+        </div>
+        <div>
+            <a href="<?= htmlspecialchars($google_auth_url); ?>" class="oauth-button google-button">
+                Googleでログイン
+            </a>
+        </div>
     </div>
 </body>
 

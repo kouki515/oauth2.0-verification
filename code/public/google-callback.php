@@ -13,15 +13,17 @@ if (isset($_GET['code'])) {
 
     // アクセストークンを取得
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://github.com/login/oauth/access_token');
+    curl_setopt($ch, CURLOPT_URL, 'https://oauth2.googleapis.com/token');
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-        'client_id' => GITHUB_CLIENT_ID,
-        'client_secret' => GITHUB_CLIENT_SECRET,
+        'client_id' => GOOGLE_CLIENT_ID,
+        'client_secret' => GOOGLE_CLIENT_SECRET,
         'code' => $code,
+        'redirect_uri' => GOOGLE_REDIRECT_URI,
+        'grant_type' => 'authorization_code'
     ]));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 
     $response = curl_exec($ch);
     curl_close($ch);
@@ -31,11 +33,10 @@ if (isset($_GET['code'])) {
 
     // ユーザー情報を取得
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://api.github.com/user');
+    curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/oauth2/v2/userinfo');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: token ' . $access_token,
-        'User-Agent: PHP OAuth Client'
+        'Authorization: Bearer ' . $access_token
     ]);
 
     $response = curl_exec($ch);
@@ -43,7 +44,7 @@ if (isset($_GET['code'])) {
 
     $user = json_decode($response, true);
     $_SESSION['user'] = $user;
-    $_SESSION['oauth_provider'] = 'github';
+    $_SESSION['oauth_provider'] = 'google';
     require 'login-success.php';
 } else {
     echo "認証エラー";
