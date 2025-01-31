@@ -1,5 +1,10 @@
+<?php
+require_once 'config.php';
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>ダッシュボード</title>
@@ -11,23 +16,27 @@
             padding: 2rem;
             background-color: #f5f5f5;
         }
+
         .dashboard {
             background: white;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .user-info {
             display: flex;
             align-items: center;
             margin-bottom: 2rem;
         }
+
         .avatar {
             width: 100px;
             height: 100px;
             border-radius: 50%;
             margin-right: 1rem;
         }
+
         .logout {
             background-color: #dc3545;
             color: white;
@@ -39,15 +48,14 @@
         }
     </style>
 </head>
+
 <body>
     <?php
-    require_once 'config.php';
-    
     if (!isset($_SESSION['user'])) {
         header('Location: index.php');
         exit;
     }
-    
+
     $user = $_SESSION['user'];
     ?>
     <div class="dashboard">
@@ -62,4 +70,5 @@
         <a href="logout.php" class="logout">ログアウト</a>
     </div>
 </body>
+
 </html>
