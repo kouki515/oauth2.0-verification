@@ -384,7 +384,6 @@ class GoogleOAuthServerVerification
             return false;
         }
 
-        // 特定のクレームに対する追加チェックをここに追加することができます
         return true;
     }
 
@@ -444,8 +443,7 @@ class GoogleOAuthServerVerification
         if (isset($authResponse['error'])) {
             return false;
         }
-
-        // First token request
+        // 最初のトークンリクエスト
         $firstResponse = $this->mockServer->handleTokenRequest([
             'grant_type' => 'authorization_code',
             'code' => $authResponse['code'],
@@ -453,7 +451,7 @@ class GoogleOAuthServerVerification
             'client_secret' => GOOGLE_CLIENT_SECRET
         ]);
 
-        // Second token request (using the same code)
+        // 同じコードを使用した2回目のトークンリクエスト
         $secondResponse = $this->mockServer->handleTokenRequest([
             'grant_type' => 'authorization_code',
             'code' => $authResponse['code'],
@@ -652,7 +650,7 @@ class GoogleOAuthServerVerification
         // invalid_request
         $response1 = $this->mockServer->handleAuthorizationRequest([
             'client_id' => GOOGLE_CLIENT_ID
-            // Deliberately omitting response_type
+            // 故意にresponse_typeを省略
         ]);
         if (!isset($response1['error']) || $response1['error'] !== 'invalid_request') {
             return false;
@@ -745,17 +743,17 @@ class GoogleOAuthServerVerification
 
     private function verifyTokenLeakagePrevention()
     {
-        return true; // Tokens are never included in URL fragments
+        return true; // トークンはURLフラグメントに含まれない
     }
 
     private function verifyReplayPrevention()
     {
-        return $this->verifyAuthCodeSingleUse(); // Reuse authorization code verification
+        return $this->verifyAuthCodeSingleUse(); // 認可コード再利用の検証
     }
 
     private function verifyTLSCertValidation()
     {
-        return true; // TLS verification is handled by verifyTLS()
+        return true; // TLS検証はverifyTLS()で処理
     }
 
     public function printResults()
@@ -823,6 +821,6 @@ class GoogleOAuthServerVerification
     }
 }
 
-// Main execution code
+// メインの実行コード
 $verifier = new GoogleOAuthServerVerification();
 $verifier->runVerification();
