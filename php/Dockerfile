@@ -12,3 +12,9 @@ RUN apt-get update \
     && docker-php-ext-install pdo_mysql
 
 COPY php.ini /usr/local/etc/php/
+
+WORKDIR /var/code
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+RUN composer require guzzlehttp/guzzle
