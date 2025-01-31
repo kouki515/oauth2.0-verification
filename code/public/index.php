@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'config.php';
 ?>
 <!DOCTYPE html>
@@ -48,20 +49,10 @@ require_once 'config.php';
         <h1>ログイン</h1>
         <p>GitHubアカウントでログインしてください</p>
         <?php
-        $state = bin2hex(random_bytes(16));
-        $_SESSION['oauth_state'] = $state;
-
-        $params = [
-            'client_id' => GITHUB_CLIENT_ID,
-            'redirect_uri' => REDIRECT_URI,
-            'state' => $state,
-            'scope' => 'read:user user:email'
-        ];
-
-        $auth_url = 'https://github.com/login/oauth/authorize?' . http_build_query($params);
+        $auth_url = 'https://github.com/login/oauth/authorize?'
         ?>
-        <a href="<?php echo htmlspecialchars($auth_url); ?>" class="github-button">
-            GitHubでログイン
+        <a href="<?= htmlspecialchars($auth_url); ?>client_id=<?= GITHUB_CLIENT_ID; ?>&redirect_uri=<?= urlencode(REDIRECT_URI); ?>&scope=user" class="github-button">
+        GitHubでログイン
         </a>
     </div>
 </body>
