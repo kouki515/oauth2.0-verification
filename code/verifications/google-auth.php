@@ -25,27 +25,27 @@ class MockGoogleOAuthServer
 
     public function handleAuthorizationRequest($params)
     {
-        // Required parameter validation
+        // 必須パラメータの検証
         if (!isset($params['response_type']) || !isset($params['client_id'])) {
             return $this->createErrorResponse('invalid_request');
         }
 
-        // Client ID validation
+        // クライアントIDの検証
         if (!isset($this->validClients[$params['client_id']])) {
             return $this->createErrorResponse('unauthorized_client');
         }
 
-        // Response type validation
+        // レスポンスタイプの検証
         if ($params['response_type'] !== 'code') {
             return $this->createErrorResponse('unsupported_response_type');
         }
 
-        // Redirect URI validation
+        // リダイレクトURIの検証
         if (isset($params['redirect_uri']) && !in_array($params['redirect_uri'], $this->validRedirectUris)) {
             return $this->createErrorResponse('invalid_request');
         }
 
-        // Scope validation
+        // スコープの検証
         if (isset($params['scope'])) {
             $requestedScopes = explode(' ', $params['scope']);
             foreach ($requestedScopes as $scope) {
@@ -55,14 +55,14 @@ class MockGoogleOAuthServer
             }
         }
 
-        // Generate authorization code
+        // 認可コードの生成
         $code = bin2hex(random_bytes(32));
         $this->issuedCodes[$code] = [
             'client_id' => $params['client_id'],
             'scope' => $params['scope'] ?? '',
             'redirect_uri' => $params['redirect_uri'] ?? null,
             'used' => false,
-            'expires_at' => time() + 600 // Valid for 10 minutes
+            'expires_at' => time() + 600 // 10分間有効
         ];
 
         return [
@@ -73,7 +73,7 @@ class MockGoogleOAuthServer
 
     public function handleTokenRequest($params)
     {
-        // Required parameter validation
+        // 必須パラメータの検証
         if (
             !isset($params['grant_type']) || !isset($params['code']) ||
             !isset($params['client_id']) || !isset($params['client_secret'])
@@ -81,7 +81,7 @@ class MockGoogleOAuthServer
             return $this->createErrorResponse('invalid_request');
         }
 
-        // Client authentication
+        // クライアント認証
         if (
             !isset($this->validClients[$params['client_id']]) ||
             $this->validClients[$params['client_id']] !== $params['client_secret']
@@ -89,19 +89,19 @@ class MockGoogleOAuthServer
             return $this->createErrorResponse('unauthorized_client');
         }
 
-        // Authorization code validation
+        // 認可コードの検証
         if (!isset($this->issuedCodes[$params['code']])) {
             return $this->createErrorResponse('invalid_grant');
         }
 
         $codeInfo = $this->issuedCodes[$params['code']];
 
-        // Check for code reuse
+        // コードの再利用チェック
         if ($codeInfo['used']) {
             return $this->createErrorResponse('invalid_grant');
         }
 
-        // Redirect URI validation
+        // リダイレクトURIの検証
         if (
             isset($codeInfo['redirect_uri']) &&
             (!isset($params['redirect_uri']) || $params['redirect_uri'] !== $codeInfo['redirect_uri'])
@@ -109,18 +109,18 @@ class MockGoogleOAuthServer
             return $this->createErrorResponse('invalid_grant');
         }
 
-        // Expiration validation
+        // 有効期限の検証
         if (time() > $codeInfo['expires_at']) {
             return $this->createErrorResponse('invalid_grant');
         }
 
-        // Mark code as used
+        // コードを使用済みにマーク
         $this->issuedCodes[$params['code']]['used'] = true;
 
-        // Generate access token and ID token (for OpenID Connect)
+        // アクセストークンとIDトークン（OpenID Connect用）の生成
         $accessToken = bin2hex(random_bytes(32));
         $idToken = null;
-        
+
         if (strpos($codeInfo['scope'], 'openid') !== false) {
             $idToken = $this->generateIdToken($params['client_id']);
         }
@@ -180,16 +180,16 @@ class MockGoogleOAuthServer
     private function getErrorDescription($error)
     {
         $descriptions = [
-            'invalid_request' => 'The request is missing a required parameter',
-            'unauthorized_client' => 'The client is not authorized',
-            'access_denied' => 'The resource owner denied the request',
-            'unsupported_response_type' => 'The response type is not supported',
-            'invalid_scope' => 'The requested scope is invalid',
-            'server_error' => 'The server encountered an error',
-            'temporarily_unavailable' => 'The server is temporarily unavailable',
-            'invalid_grant' => 'The provided authorization grant is invalid'
+            'invalid_request' => 'リクエストに必要なパラメータが欠けています',
+            'unauthorized_client' => 'クライアントが認可されていません',
+            'access_denied' => 'リソースオーナーがリクエストを拒否しました',
+            'unsupported_response_type' => 'サポートされていないレスポンスタイプです',
+            'invalid_scope' => 'リクエストされたスコープが無効です',
+            'server_error' => 'サーバーでエラーが発生しました',
+            'temporarily_unavailable' => 'サーバーが一時的に利用できません',
+            'invalid_grant' => '提供された認可グラントが無効です'
         ];
-        return $descriptions[$error] ?? 'An error occurred';
+        return $descriptions[$error] ?? 'エラーが発生しました';
     }
 }
 
@@ -267,7 +267,7 @@ class GoogleOAuthServerVerification
 
     private function verifyOpenIDScope()
     {
-        // Test valid OpenID Connect scopes
+        // 有効なOpenID Connectスコープのテスト
         $validResponse = $this->mockServer->handleAuthorizationRequest([
             'response_type' => 'code',
             'client_id' => GOOGLE_CLIENT_ID,
@@ -278,14 +278,14 @@ class GoogleOAuthServerVerification
             return false;
         }
 
-        // Test invalid OpenID Connect scope combination
+        // 無効なOpenID Connectスコープの組み合わせのテスト
         $invalidResponse = $this->mockServer->handleAuthorizationRequest([
             'response_type' => 'code',
             'client_id' => GOOGLE_CLIENT_ID,
-            'scope' => 'email profile' // missing 'openid' scope
+            'scope' => 'email profile' // 'openid'スコープが欠けている
         ]);
 
-        // Should succeed as these are valid scopes even without 'openid'
+        // 'openid'スコープがなくても有効なスコープなので成功するはず
         if (isset($invalidResponse['error'])) {
             return false;
         }
@@ -295,7 +295,7 @@ class GoogleOAuthServerVerification
 
     private function verifyIDTokenIncluded()
     {
-        // Request with OpenID scope
+        // OpenIDスコープを含むリクエスト
         $authResponse = $this->mockServer->handleAuthorizationRequest([
             'response_type' => 'code',
             'client_id' => GOOGLE_CLIENT_ID,
@@ -317,7 +317,7 @@ class GoogleOAuthServerVerification
             return false;
         }
 
-        // Verify request without OpenID scope
+        // OpenIDスコープを含まないリクエストの検証
         $authResponse2 = $this->mockServer->handleAuthorizationRequest([
             'response_type' => 'code',
             'client_id' => GOOGLE_CLIENT_ID,
@@ -335,7 +335,7 @@ class GoogleOAuthServerVerification
             'client_secret' => GOOGLE_CLIENT_SECRET
         ]);
 
-        // Should not include id_token when openid scope is not requested
+        // openidスコープが要求されていない場合、id_tokenは含まれないはず
         return !isset($tokenResponse2['id_token']);
     }
 
@@ -366,23 +366,25 @@ class GoogleOAuthServerVerification
         $parts = explode('.', $idToken);
 
         if (count($parts) !== 3) {
-            return false; // Must have header, payload, and signature
+            return false; // ヘッダー、ペイロード、署名が必要
         }
 
-        // Decode and validate header
+        // ヘッダーのデコードと検証
         $header = json_decode(base64_decode($parts[0]), true);
         if (!isset($header['alg']) || !isset($header['typ'])) {
             return false;
         }
 
-        // Decode and validate payload
+        // ペイロードのデコードと検証
         $payload = json_decode(base64_decode($parts[1]), true);
-        if (!isset($payload['iss']) || !isset($payload['sub']) || !isset($payload['aud']) ||
-            !isset($payload['exp']) || !isset($payload['iat'])) {
+        if (
+            !isset($payload['iss']) || !isset($payload['sub']) || !isset($payload['aud']) ||
+            !isset($payload['exp']) || !isset($payload['iat'])
+        ) {
             return false;
         }
 
-        // Additional checks could be added here for specific claims
+        // 特定のクレームに対する追加チェックをここに追加することができます
         return true;
     }
 
@@ -795,11 +797,6 @@ class GoogleOAuthServerVerification
                 'replay_prevention' => 'リプレイ攻撃対策',
                 'tls_cert_validation' => 'TLS証明書検証'
             ],
-            '6. OpenID Connect 要件' => [
-                'openid_scope_support' => 'OpenID スコープサポート',
-                'id_token_included' => 'ID トークンの明示',
-                'id_token_validation' => 'ID トークン検証'
-            ]
         ];
 
         foreach ($categories as $categoryName => $items) {
