@@ -1,0 +1,13 @@
+<?php
+// GitHub OAuth設定
+define('GITHUB_CLIENT_ID', 'xxxxxxxxxx');
+define('GITHUB_CLIENT_SECRET', 'xxxxxxxxxx');
+
+// Google OAuth設定
+define('GOOGLE_CLIENT_ID', 'xxxxxxxxxx');
+define('GOOGLE_CLIENT_SECRET', 'xxxxxxxxxx');
+
+// 共通設定
+define('BASE_URL', 'http://localhost:8080');
+define('GITHUB_REDIRECT_URI', BASE_URL . '/github-callback.php');
+define('GOOGLE_REDIRECT_URI', BASE_URL . '/google-callback.php');
