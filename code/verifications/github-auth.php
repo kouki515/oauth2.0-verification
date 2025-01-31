@@ -152,7 +152,7 @@ class MockOAuthServer
     }
 }
 
-class OAuthServerVerification
+class GithubOAuthServerVerification
 {
     private $results = [];
     private $mockServer;
@@ -669,5 +669,5 @@ class OAuthServerVerification
 }
 
 // メインの実行コード
-$verifier = new OAuthServerVerification();
+$verifier = new GithubOAuthServerVerification();
 $verifier->runVerification();

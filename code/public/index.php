@@ -54,6 +54,14 @@ require_once __DIR__ . '/../config.php';
         .google-button:hover {
             background-color: #357abd;
         }
+
+        .discord-button {
+            background-color: #7289DA;
+        }
+
+        .discord-button:hover {
+            background-color: #677BC4;
+        }
     </style>
 </head>
 
@@ -73,6 +81,12 @@ require_once __DIR__ . '/../config.php';
             . '&response_type=code'
             . '&scope=' . urlencode('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')
             . '&access_type=online';
+
+        $discord_auth_url = 'https://discord.com/api/oauth2/authorize?'
+            . 'client_id=' . DISCORD_CLIENT_ID
+            . '&redirect_uri=' . urlencode(DISCORD_REDIRECT_URI)
+            . '&response_type=code'
+            . '&scope=' . urlencode('identify email');
         ?>
         <div>
             <a href="<?= htmlspecialchars($github_auth_url); ?>" class="oauth-button github-button">
@@ -82,6 +96,11 @@ require_once __DIR__ . '/../config.php';
         <div>
             <a href="<?= htmlspecialchars($google_auth_url); ?>" class="oauth-button google-button">
                 Googleでログイン
+            </a>
+        </div>
+        <div>
+            <a href="<?= htmlspecialchars($discord_auth_url); ?>" class="oauth-button discord-button">
+                Discordでログイン
             </a>
         </div>
     </div>
